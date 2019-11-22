@@ -28,7 +28,7 @@ def create_dict_link_to_name():
 
 @app.route('/', methods=['GET'])
 def index():
-    print( '<h1> BEM VINDO !!! </h1>' ) 
+    return 'BEM VINDO !!!' 
 
 @app.route('/points', methods=['GET'])
 def points():
@@ -210,3 +210,7 @@ def athletes():
 
     final_dict['team_to_players'].append( players_by_team )
     return final_dict
+
+
+if __name__ == '__main__':
+    app.run()
