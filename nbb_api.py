@@ -26,6 +26,10 @@ def create_dict_link_to_name():
 
     return _dict_link_to_name
 
+@app.route('/', methods=['GET'])
+def index():
+    print( '<h1> BEM VINDO !!! </h1>' )
+
 @app.route('/points', methods=['GET'])
 def points():
     player = request.args.get('player')
