@@ -1,1 +1,1 @@
-web: python3 nbb_api.py
+web: python nbb_api.py
