@@ -1,4 +1,5 @@
-from flask import Flask, request
+import os
+from flask import Flask, request, jsonify
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -28,7 +29,7 @@ def create_dict_link_to_name():
 
 @app.route('/', methods=['GET'])
 def index():
-    return 'BEM VINDO !!!' 
+    return jsonify({'BEM VINDO !!!': 'Aproveite'}) 
 
 @app.route('/points', methods=['GET'])
 def points():
@@ -213,4 +214,5 @@ def athletes():
 
 
 if __name__ == '__main__':
-    app.run( debug=True, port=80 )
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
