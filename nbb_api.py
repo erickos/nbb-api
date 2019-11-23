@@ -7,6 +7,8 @@ app = Flask(__name__)
 
 seasons = ['1', '2', '3', '4', '8', '15', '20', '27', '34', '41', '47', '54']
 
+all_players_json = {}
+
 def create_dict_link_to_name():
     # criando as listas de cada time
     _teams_name_page_url = 'https://lnb.com.br/nbb/equipes'
@@ -27,12 +29,9 @@ def create_dict_link_to_name():
 
     return _dict_link_to_name
 
-all_players_json = {}
-
-
 @app.route('/', methods=['GET'])
 def index():
-    return jsonify({'BEM VINDO !!!': 'Esta é uma api para obter dados sobre jogadores do NBB'}) 
+    return 'BEM VINDO !!!' 
 
 @app.route('/points', methods=['GET'])
 def points():
@@ -67,7 +66,7 @@ def points():
     players_stats_points['players'] = players
 
     return players_stats_points
-    
+
 @app.route('/rebounds', methods=['GET'])
 def rebounds():
     week = int(request.args['week'])
@@ -130,7 +129,8 @@ def assists():
 
     return players_stats_assists
 
-def get_athletes():
+@app.route('/athletes', methods=['GET'])
+def athletes():
     initial_url = 'https://lnb.com.br/nbb/atletas/'
     page = requests.get(initial_url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -209,15 +209,12 @@ def get_athletes():
                 # adicionando a lista de jogadores daquele time
                 players_by_team[ curr_player_info['team_name'] ].append( curr_player_info )
             except:
-                print( 'Error in Current Player : ', player['href'], ' from : ', team_url )
+                print( 'Current Player : ', player['href'], ' from : ', team_url )
 
     final_dict['team_to_players'].append( players_by_team )
-    return final_dict
 
-@app.route('/athletes', methods=['GET'])
-def athletes():
-    all_players_json =  ()
-    return all_players_json
+    all_players_json = final_dict
+    return final_dict
 
 
 if __name__ == '__main__':
