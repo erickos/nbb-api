@@ -118,7 +118,6 @@ def assists():
             'name': cols[1].find('a').get_text(),
             'team': cols[2].find('a').get_text(),
             'games_played': int(cols[3].text.strip()),
-@app.route('/athletes', methods=['GET'])
             'minutes_played': int(cols[4].text.strip()),
             'assists': int(cols[5].text.strip()),
             'assists_err': int(cols[6].text.strip()), 
@@ -213,7 +212,6 @@ def get_athletes():
 
     final_dict['team_to_players'].append( players_by_team )
     return final_dict
-
 
 @app.route('/athletes', methods=['GET'])
 def athletes():
