@@ -216,7 +216,8 @@ def get_athletes():
 
 @app.route('/athletes', methods=['GET'])
 def athletes():
-    if( not all_players_json ):
+    global all_players_json
+    if( all_players_json is None ):
         all_players_json = get_athletes()
 
     return all_players_json
