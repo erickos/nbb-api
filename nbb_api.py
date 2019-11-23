@@ -27,91 +27,8 @@ def create_dict_link_to_name():
 
     return _dict_link_to_name
 
-def get_athletes():
-    initial_url = 'https://lnb.com.br/nbb/atletas/'
-    page = requests.get(initial_url)
-    soup = BeautifulSoup(page.content, 'html.parser')
-    teams_link_list = soup.find('div', {"class": "column players_archive_select_team"}).find_all('li')
+all_players_json = {}
 
-    final_dict = { 'team_to_players': [] }
-    players_by_team = {}
-    link_to_team_name = {}  
-
-    # Dicionario para guardar referencia entre o link de acesso e o nome do time
-    link_to_team_name = create_dict_link_to_name()
-
-    # criando as listas de cada time
-    teams_name_page_url = 'https://lnb.com.br/nbb/equipes'
-    teams_name_page = requests.get(teams_name_page_url)
-    teams_name_soup = BeautifulSoup(teams_name_page.content, 'html.parser')
-
-    teams_name_list = teams_name_soup.find_all('div', class_="name_team_archive")
-
-    for current_team in teams_name_list:
-        team_name = current_team.find('strong').text.upper()
-        players_by_team[team_name] = []  
-    #####                     #####
-
-    for team in teams_link_list:
-        team_url = team.find('a')['href'] 
-
-        team_page = requests.get( team_url )
-        team_soup = BeautifulSoup(team_page.content, 'html.parser')
-        team_players_resultset = team_soup.find('section', class_='players_archive_screen_one').find('div', class_='large-12 small-12 medium-12 columns').findChildren('a', recursive=False)
-
-        for player in team_players_resultset:
-            curr_player_info = {}
-            curr_player_info['player_page_link'] = player['href']
-
-            player_page = requests.get( player['href'] )
-            player_soup = BeautifulSoup( player_page.content, 'html.parser')
-            
-
-            try:
-                player_general_info = player_soup.find('table', class_='ficha_tecnica_athlete_stats show-for-small-only').find_all('tr')
-
-                # player name 
-                curr_player_info['fullname'] = player_general_info[0].find_all('td')[1].text
-                # player position
-                curr_player_info['position'] = player_general_info[1].find_all('td')[1].text
-                # player birth date
-                curr_player_info['date'] = player_general_info[2].find_all('td')[1].text
-                
-                # tratamento altura e peso
-                aux_alt_peso = player_general_info[3].find_all('td')[1].text.split('/')
-                curr_player_info['height'] = float(aux_alt_peso[0].strip())
-                curr_player_info['weight'] = float(aux_alt_peso[1].strip().replace('kg',''))
-
-                curr_player_info['birth_place'] = player_general_info[4].find_all('td')[1].text
-
-                # tratando caso apareça mais de um time, ocorre quando o jogador participou do Jogos das Estrelas
-                curr_player_team_info = player_general_info[5].find_all('a')
-
-                if( len(curr_player_team_info) == 1 ):
-                    curr_player_info['team_page_link'] = curr_player_team_info[0]['href']
-                    curr_player_info['team_name'] = link_to_team_name[ curr_player_team_info[0]['href'] ].upper()
-                else:
-                    curr_player_info['team_page_link'] = curr_player_team_info[1]['href']
-                    curr_player_info['team_name'] =link_to_team_name[ curr_player_team_info[1]['href'] ].upper()
-
-                # Link para o avatar do atleta
-                curr_player_info['photo_src_link'] = player_soup.find( 'div', class_='photo_athlete_blue large-2 medium-6 small-12 columns' ).find('img')['src']
-
-                # Nome identificador do atleta '# (shirt number) name'
-                curr_player_info['name'] = player_soup.find( 'div', class_='large-9 medium-12 small-12 columns athlete_stats' ).find('h1').text.replace('/','').replace('<strong>','').strip() 
-
-                # Numero aparicoes no Jogo das estrelas
-                curr_player_info['allstar_appearances'] = player_soup.find('table', class_='ficha_tecnica_athlete_stats hide-for-small-only').find_all('tr')[3].find_all('td')[1].text
-
-                # adicionando a lista de jogadores daquele time
-                players_by_team[ curr_player_info['team_name'] ].append( curr_player_info )
-            except:
-                print( 'Error in Current Player : ', player['href'], ' from : ', team_url )
-
-    final_dict['team_to_players'].append( players_by_team )
-    return final_dict
-
-all_players_json = get_athletes()
 
 @app.route('/', methods=['GET'])
 def index():
@@ -214,8 +131,93 @@ def assists():
 
     return players_stats_assists
 
+def get_athletes():
+    initial_url = 'https://lnb.com.br/nbb/atletas/'
+    page = requests.get(initial_url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    teams_link_list = soup.find('div', {"class": "column players_archive_select_team"}).find_all('li')
+
+    final_dict = { 'team_to_players': [] }
+    players_by_team = {}
+    link_to_team_name = {}  
+
+    # Dicionario para guardar referencia entre o link de acesso e o nome do time
+    link_to_team_name = create_dict_link_to_name()
+
+    # criando as listas de cada time
+    teams_name_page_url = 'https://lnb.com.br/nbb/equipes'
+    teams_name_page = requests.get(teams_name_page_url)
+    teams_name_soup = BeautifulSoup(teams_name_page.content, 'html.parser')
+
+    teams_name_list = teams_name_soup.find_all('div', class_="name_team_archive")
+
+    for current_team in teams_name_list:
+        team_name = current_team.find('strong').text.upper()
+        players_by_team[team_name] = []  
+    #####                     #####
+
+    for team in teams_link_list:
+        team_url = team.find('a')['href'] 
+
+        team_page = requests.get( team_url )
+        team_soup = BeautifulSoup(team_page.content, 'html.parser')
+        team_players_resultset = team_soup.find('section', class_='players_archive_screen_one').find('div', class_='large-12 small-12 medium-12 columns').findChildren('a', recursive=False)
+
+        for player in team_players_resultset:
+            curr_player_info = {}
+            curr_player_info['player_page_link'] = player['href']
+
+            player_page = requests.get( player['href'] )
+            player_soup = BeautifulSoup( player_page.content, 'html.parser')
+            
+
+            try:
+                player_general_info = player_soup.find('table', class_='ficha_tecnica_athlete_stats show-for-small-only').find_all('tr')
+
+                # player name 
+                curr_player_info['fullname'] = player_general_info[0].find_all('td')[1].text
+                # player position
+                curr_player_info['position'] = player_general_info[1].find_all('td')[1].text
+                # player birth date
+                curr_player_info['date'] = player_general_info[2].find_all('td')[1].text
+                
+                # tratamento altura e peso
+                aux_alt_peso = player_general_info[3].find_all('td')[1].text.split('/')
+                curr_player_info['height'] = float(aux_alt_peso[0].strip())
+                curr_player_info['weight'] = float(aux_alt_peso[1].strip().replace('kg',''))
+
+                curr_player_info['birth_place'] = player_general_info[4].find_all('td')[1].text
+
+                # tratando caso apareça mais de um time, ocorre quando o jogador participou do Jogos das Estrelas
+                curr_player_team_info = player_general_info[5].find_all('a')
+
+                if( len(curr_player_team_info) == 1 ):
+                    curr_player_info['team_page_link'] = curr_player_team_info[0]['href']
+                    curr_player_info['team_name'] = link_to_team_name[ curr_player_team_info[0]['href'] ].upper()
+                else:
+                    curr_player_info['team_page_link'] = curr_player_team_info[1]['href']
+                    curr_player_info['team_name'] =link_to_team_name[ curr_player_team_info[1]['href'] ].upper()
+
+                # Link para o avatar do atleta
+                curr_player_info['photo_src_link'] = player_soup.find( 'div', class_='photo_athlete_blue large-2 medium-6 small-12 columns' ).find('img')['src']
+
+                # Nome identificador do atleta '# (shirt number) name'
+                curr_player_info['name'] = player_soup.find( 'div', class_='large-9 medium-12 small-12 columns athlete_stats' ).find('h1').text.replace('/','').replace('<strong>','').strip() 
+
+                # Numero aparicoes no Jogo das estrelas
+                curr_player_info['allstar_appearances'] = player_soup.find('table', class_='ficha_tecnica_athlete_stats hide-for-small-only').find_all('tr')[3].find_all('td')[1].text
+
+                # adicionando a lista de jogadores daquele time
+                players_by_team[ curr_player_info['team_name'] ].append( curr_player_info )
+            except:
+                print( 'Error in Current Player : ', player['href'], ' from : ', team_url )
+
+    final_dict['team_to_players'].append( players_by_team )
+    return final_dict
+
 @app.route('/athletes', methods=['GET'])
 def athletes():
+    all_players_json = get_athletes()
     return all_players_json
 
 
