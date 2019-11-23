@@ -7,6 +7,26 @@ app = Flask(__name__)
 
 seasons = ['1', '2', '3', '4', '8', '15', '20', '27', '34', '41', '47', '54']
 
+def create_dict_link_to_name():
+    # criando as listas de cada time
+    _teams_name_page_url = 'https://lnb.com.br/nbb/equipes'
+    _teams_name_page = requests.get( _teams_name_page_url )
+    _teams_name_soup = BeautifulSoup( _teams_name_page.content, 'html.parser' )
+
+    _teams_name_links = _teams_name_soup.find_all('div', class_="large-12 small-12 medium-12 columns")[1].find_all('a')
+
+    _dict_link_to_name = {}
+
+    for link in _teams_name_links:
+        _page = requests.get(link['href'])
+        _soup = BeautifulSoup( _page.content, 'html.parser' )
+
+        _team_name = _soup.find('strong', class_='whitet title').text
+
+        _dict_link_to_name[ link['href'] ] = _team_name
+
+    return _dict_link_to_name
+
 def get_athletes():
     initial_url = 'https://lnb.com.br/nbb/atletas/'
     page = requests.get(initial_url)
@@ -92,26 +112,6 @@ def get_athletes():
     return final_dict
 
 all_players_json = get_athletes()
-
-def create_dict_link_to_name():
-    # criando as listas de cada time
-    _teams_name_page_url = 'https://lnb.com.br/nbb/equipes'
-    _teams_name_page = requests.get( _teams_name_page_url )
-    _teams_name_soup = BeautifulSoup( _teams_name_page.content, 'html.parser' )
-
-    _teams_name_links = _teams_name_soup.find_all('div', class_="large-12 small-12 medium-12 columns")[1].find_all('a')
-
-    _dict_link_to_name = {}
-
-    for link in _teams_name_links:
-        _page = requests.get(link['href'])
-        _soup = BeautifulSoup( _page.content, 'html.parser' )
-
-        _team_name = _soup.find('strong', class_='whitet title').text
-
-        _dict_link_to_name[ link['href'] ] = _team_name
-
-    return _dict_link_to_name
 
 @app.route('/', methods=['GET'])
 def index():
