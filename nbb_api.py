@@ -67,8 +67,7 @@ def points():
     players_stats_points['players'] = players
 
     return players_stats_points
-
-@app.route('/athletes', methods=['GET'])
+    
 @app.route('/rebounds', methods=['GET'])
 def rebounds():
     week = int(request.args['week'])
@@ -217,7 +216,7 @@ def get_athletes():
 
 @app.route('/athletes', methods=['GET'])
 def athletes():
-    all_players_json = get_athletes()
+    all_players_json =  ()
     return all_players_json
 
 
