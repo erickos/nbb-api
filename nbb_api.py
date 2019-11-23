@@ -6,7 +6,7 @@ import json
 app = Flask(__name__)
 
 seasons = ['1', '2', '3', '4', '8', '15', '20', '27', '34', '41', '47', '54']
-all_players_json = {}
+all_players_json = get_athletes()
 
 def create_dict_link_to_name():
     # criando as listas de cada time
@@ -221,5 +221,3 @@ def athletes():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-    all_players_json = get_athletes()
-    
