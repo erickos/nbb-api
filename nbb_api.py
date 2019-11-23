@@ -216,7 +216,7 @@ def get_athletes():
 
 @app.route('/athletes', methods=['GET'])
 def athletes():
-    if( all_players_json is None ):
+    if( not all_players_json ):
         all_players_json = get_athletes()
 
     return all_players_json
