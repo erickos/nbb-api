@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -31,7 +31,7 @@ def create_dict_link_to_name():
 
 @app.route('/', methods=['GET'])
 def index():
-    return 'BEM VINDO !!!' 
+    return render_template('index.html') 
 
 @app.route('/points', methods=['GET'])
 def points():
